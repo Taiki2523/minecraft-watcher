@@ -1,0 +1,27 @@
+services:
+  minecraft-watcher:
+    build:
+      context: .
+      dockerfile: ./build/Dockerfile.dev
+    tty: true
+    stdin_open: true
+    container_name: minecraft-watcher-dev
+    restart: always
+    environment:
+      TIMEZONE: ${TIMEZONE}
+      DISCORD_WEBHOOK_URL: ${DISCORD_WEBHOOK_URL}
+      LOG_FILE: ${LOG_FILE}
+      LOG_LEVEL: ${LOG_LEVEL}
+      PLAYER_CHECK_INTERVAL: ${PLAYER_CHECK_INTERVAL}
+      MC_CONTAINER_NAME: ${MC_CONTAINER_NAME}
+      MC_MONITOR_INTERVAL: ${MC_MONITOR_INTERVAL}
+    volumes:
+      - ./:/go/src/github.com/taiki2523/minecraft-watcher
+      - ${MINECRAFT_DATA_PATH}:/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - main-application-network2
+
+networks:
+  main-application-network2:
+    external: true
