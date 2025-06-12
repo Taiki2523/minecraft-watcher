@@ -1,5 +1,5 @@
 {
-  "name": "Go-devcontainer",
+  "name": "minecraft-watcher-dev",
   "service": "minecraft-watcher",
   "dockerComposeFile": [
     "../docker-compose-dev.yml"
