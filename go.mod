@@ -2,8 +2,6 @@ module github.com/taiki2523/minecraft-watcher
 
 go 1.23.0
 
-toolchain go1.23.10
-
 require (
 	github.com/fsnotify/fsnotify v1.9.0
 	github.com/rs/zerolog v1.34.0
