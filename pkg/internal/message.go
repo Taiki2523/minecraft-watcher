@@ -1,17 +1,15 @@
-package message
+package internal
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/taiki2523/minecraft-watcher/pkg/util"
 )
 
 const delimiter = "===================="
 
 // サーバ起動・停止イベント
 func FormatServerEvent(eventType string) string {
-	timestamp := util.GetNow().Format("2006-01-02 15:04:05")
+	timestamp := GetNow().Format("2006-01-02 15:04:05")
 	var body string
 
 	switch eventType {
@@ -28,7 +26,7 @@ func FormatServerEvent(eventType string) string {
 
 // プレイヤー参加・退出イベント
 func FormatPlayerEvent(eventType, playerName string) string {
-	timestamp := util.GetNow().Format("2006-01-02 15:04:05")
+	timestamp := GetNow().Format("2006-01-02 15:04:05")
 	boldName := fmt.Sprintf("**%s**", playerName)
 
 	var body string
@@ -46,7 +44,7 @@ func FormatPlayerEvent(eventType, playerName string) string {
 
 // 現在の参加者ステータス
 func FormatPlayerListStatus(players []string) string {
-	timestamp := util.GetNow().Format("2006-01-02 15:04:05")
+	timestamp := GetNow().Format("2006-01-02 15:04:05")
 	if len(players) == 0 {
 		return ""
 	}

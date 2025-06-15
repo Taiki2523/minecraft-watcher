@@ -1,4 +1,4 @@
-package mcstatus
+package interfaces
 
 import (
 	"bytes"
@@ -7,10 +7,11 @@ import (
 	"time"
 
 	"github.com/rs/zerolog/log"
-	"github.com/taiki2523/minecraft-watcher/pkg/message"
-	"github.com/taiki2523/minecraft-watcher/pkg/notifier"
+	"github.com/taiki2523/minecraft-watcher/pkg/domain"
+	"github.com/taiki2523/minecraft-watcher/pkg/internal"
 )
 
+// コンテナのヘルスチェック状態を取得
 func getContainerHealth(containerName string) (string, error) {
 	cmd := exec.Command("docker", "inspect", "--format={{.State.Health.Status}}", containerName)
 	var out bytes.Buffer
@@ -22,11 +23,17 @@ func getContainerHealth(containerName string) (string, error) {
 	return status, nil
 }
 
-func StartStatusMonitor(notifier notifier.Notifier, containerName string, interval time.Duration, stopCh <-chan struct{}) {
+// サーバー起動・停止を監視し、状態変化時に通知
+func StartStatusMonitor(
+	notifier domain.Notifier,
+	containerName string,
+	interval time.Duration,
+	stopCh <-chan struct{},
+) {
 	ticker := time.NewTicker(interval)
 	defer ticker.Stop()
 
-	var wasHealthy bool = false
+	var wasHealthy bool
 
 	for {
 		select {
@@ -39,7 +46,6 @@ func StartStatusMonitor(notifier notifier.Notifier, containerName string, interv
 
 			isHealthy := (status == "healthy")
 
-			// 🔍 常時デバッグ出力
 			log.Debug().
 				Str("container", containerName).
 				Str("status", status).
@@ -49,14 +55,14 @@ func StartStatusMonitor(notifier notifier.Notifier, containerName string, interv
 
 			// 起動検知
 			if isHealthy && !wasHealthy {
-				msg := message.FormatServerEvent("start")
+				msg := internal.FormatServerEvent("start")
 				log.Info().Msg(msg)
 				_ = notifier.Send(msg)
 			}
 
 			// 停止検知
 			if !isHealthy && wasHealthy {
-				msg := message.FormatServerEvent("stop")
+				msg := internal.FormatServerEvent("stop")
 				log.Warn().Msg(msg)
 				_ = notifier.Send(msg)
 			}
