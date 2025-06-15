@@ -25,6 +25,11 @@ func main() {
 		log.Fatal().Msg("環境変数 LOG_FILE と DISCORD_WEBHOOK_URL を指定してください")
 	}
 
+	err := internal.LoadMessagesDictFromEnv("PLAYER_ALONE_MESSAGES")
+	if err != nil {
+		log.Fatal().Err(err).Msg("メッセージ辞書の読み込みに失敗しました")
+	}
+
 	//playerRepo := infrastructure.NewPlayerFileRepository(logPath)
 	playerFileRepo := infrastructure.NewPlayerFileRepository(tmpPath)
 	notifier := &infrastructure.DiscordNotifier{WebhookURL: webhook}

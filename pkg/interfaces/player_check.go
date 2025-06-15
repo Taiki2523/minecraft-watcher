@@ -20,7 +20,12 @@ func StartPlayerCheck(n domain.Notifier, playerService *application.PlayerServic
 				continue // 誰もいなければスキップ
 			}
 
-			body := internal.FormatPlayerListStatus(players)
+			var extraBody string
+			if len(players) == 1 {
+				extraBody = internal.GetRandomMessage()
+			}
+
+			body := internal.FormatPlayerListStatus(players, extraBody)
 			if body == "" {
 				continue
 			}
