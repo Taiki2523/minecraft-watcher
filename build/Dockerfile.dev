@@ -3,5 +3,25 @@ FROM golang:1.23
 ENV ROOT=/go/src/github.com/taiki2523/minecraft-watcher
 WORKDIR ${ROOT}
 
+# タイムゾーンをAsia/Tokyoに設定
+ENV TZ=Asia/Tokyo
+
+RUN apt-get update && \
+    apt-get install -y tzdata && \
+    ln -sf /usr/share/zoneinfo/Asia/Tokyo /etc/localtime && \
+    dpkg-reconfigure -f noninteractive tzdata
+
+RUN apt-get update && \
+    apt-get install -y ca-certificates curl gnupg
+
+# Docker CLIのインストール
+RUN install -m 0755 -d /etc/apt/keyrings && \
+    curl -fsSL https://download.docker.com/linux/debian/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
+    chmod a+r /etc/apt/keyrings/docker.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list && \
+    apt-get update && \
+    apt-get install -y docker-ce-cli && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
 COPY ../scripts/install_go_tools.sh ./scripts/install_go_tools.sh
 RUN chmod +x ./scripts/install_go_tools.sh && ./scripts/install_go_tools.sh

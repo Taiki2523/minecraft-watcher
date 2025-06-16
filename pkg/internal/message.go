@@ -1,17 +1,15 @@
-package message
+package internal
 
 import (
 	"fmt"
 	"strings"
-
-	"github.com/taiki2523/minecraft-watcher/pkg/util"
 )
 
 const delimiter = "===================="
 
 // サーバ起動・停止イベント
-func FormatServerEvent(eventType string) string {
-	timestamp := util.GetNow().Format("2006-01-02 15:04:05")
+func FormatServerEvent(eventType string, extraMessage ...string) string {
+	timestamp := GetNow().Format("2006-01-02 15:04:05")
 	var body string
 
 	switch eventType {
@@ -23,12 +21,16 @@ func FormatServerEvent(eventType string) string {
 		return ""
 	}
 
+	if len(extraMessage) > 0 && extraMessage[0] != "" {
+		body += "\n" + extraMessage[0]
+	}
+
 	return fmt.Sprintf("%s\n%s\n\n📅 発生時刻: %s\n%s", delimiter, body, timestamp, delimiter)
 }
 
 // プレイヤー参加・退出イベント
 func FormatPlayerEvent(eventType, playerName string) string {
-	timestamp := util.GetNow().Format("2006-01-02 15:04:05")
+	timestamp := GetNow().Format("2006-01-02 15:04:05")
 	boldName := fmt.Sprintf("**%s**", playerName)
 
 	var body string
@@ -45,18 +47,22 @@ func FormatPlayerEvent(eventType, playerName string) string {
 }
 
 // 現在の参加者ステータス
-func FormatPlayerListStatus(players []string) string {
-	timestamp := util.GetNow().Format("2006-01-02 15:04:05")
+func FormatPlayerListStatus(players []string, extraMessage ...string) string {
+	timestamp := GetNow().Format("2006-01-02 15:04:05")
 	if len(players) == 0 {
 		return ""
 	}
 
+	var body string
 	boldPlayers := make([]string, len(players))
 	for i, name := range players {
 		boldPlayers[i] = fmt.Sprintf("**%s**", name)
 	}
+	body = fmt.Sprintf("👥 現在の参加者: %s", strings.Join(boldPlayers, ", "))
 
-	body := fmt.Sprintf("👥 現在の参加者: %s", strings.Join(boldPlayers, ", "))
+	if len(extraMessage) > 0 && extraMessage[0] != "" {
+		body += "\n" + extraMessage[0]
+	}
 
 	return fmt.Sprintf("%s\n%s\n\n📅 通知時刻: %s\n%s", delimiter, body, timestamp, delimiter)
 }

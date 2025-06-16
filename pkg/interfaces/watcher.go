@@ -1,4 +1,4 @@
-package watcher
+package interfaces
 
 import (
 	"bufio"
@@ -12,12 +12,14 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	"github.com/rs/zerolog/log"
-	"github.com/taiki2523/minecraft-watcher/pkg/message"
-	"github.com/taiki2523/minecraft-watcher/pkg/notifier"
-	"github.com/taiki2523/minecraft-watcher/pkg/player"
+	"github.com/taiki2523/minecraft-watcher/pkg/application"
 )
 
-func WatchFileLoop(logPath string, notifier notifier.Notifier, stopCh <-chan struct{}) error {
+func WatchFileLoop(
+	logPath string,
+	playerService *application.PlayerService,
+	stopCh <-chan struct{},
+) error {
 	var file *os.File
 	var reader *bufio.Reader
 	var currentInode uint64
@@ -42,7 +44,11 @@ func WatchFileLoop(logPath string, notifier notifier.Notifier, stopCh <-chan str
 		if stat == nil {
 			return errors.New("ログファイルの stat に失敗")
 		}
-		sysStat := stat.Sys().(*syscall.Stat_t)
+		sysStat, ok := stat.Sys().(*syscall.Stat_t)
+		if !ok {
+			f.Close()
+			return errors.New("stat.Sys() の型アサーションに失敗")
+		}
 		inode := sysStat.Ino
 		if file != nil && inode == currentInode {
 			f.Close()
@@ -83,7 +89,7 @@ func WatchFileLoop(logPath string, notifier notifier.Notifier, stopCh <-chan str
 						}
 						return err
 					}
-					processLogLine(line, notifier, logPath)
+					processLogLine(line, playerService)
 				}
 			}
 
@@ -93,22 +99,18 @@ func WatchFileLoop(logPath string, notifier notifier.Notifier, stopCh <-chan str
 	}
 }
 
-func processLogLine(line string, notifier notifier.Notifier, logPath string) {
+func processLogLine(line string, playerService *application.PlayerService) {
 	log.Debug().Str("line", line).Msg("Checking log line")
 
 	if strings.Contains(line, "joined the game") {
-		if name := player.ExtractPlayerName(line); name != "" {
-			player.UpdatePlayerList(logPath, name, true)
-			msg := message.FormatPlayerEvent("join", name)
-			if err := notifier.Send(msg); err != nil {
+		if name := application.ExtractPlayerName(line); name != "" {
+			if err := playerService.PlayerJoined(name); err != nil {
 				log.Error().Err(err).Msg("通知失敗")
 			}
 		}
 	} else if strings.Contains(line, "left the game") {
-		if name := player.ExtractPlayerName(line); name != "" {
-			player.UpdatePlayerList(logPath, name, false)
-			msg := message.FormatPlayerEvent("leave", name)
-			if err := notifier.Send(msg); err != nil {
+		if name := application.ExtractPlayerName(line); name != "" {
+			if err := playerService.PlayerLeft(name); err != nil {
 				log.Error().Err(err).Msg("通知失敗")
 			}
 		}
