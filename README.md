@@ -36,7 +36,7 @@ pkg/
 ├── cmd/                 // エントリポイント
 │   └── main.go
 ├── domain/              // ドメイン層（インターフェース定義）
-│   ├── nortifier.go
+│   ├── notifier.go
 │   └── player.go
 ├── infrastructure/      // インフラ層（外部サービス・ファイル操作）
 │   ├── discord_notifier.go
@@ -65,7 +65,7 @@ pkg/
 ### 2. `application/player_service.go`  
 プレイヤーの入退出やリスト通知など、業務ロジックを提供。
 
-### 3. `domain/player.go` / `domain/nortifier.go`  
+### 3. `domain/player.go` / `domain/notifier.go`
 - `PlayerRepository`/`Notifier` インターフェースを定義
 
 ### 4. `infrastructure/player_file_repository.go`  
