@@ -69,6 +69,8 @@ func main() {
 
 	if playerCheckInterval > 0 {
 		go interfaces.StartPlayerCheck(notifier, playerService, playerCheckInterval, stopCh)
+	} else {
+		log.Info().Msg("PLAYER_CHECK_INTERVAL が 0 または無効な値です。プレイヤーチェックは行いません。")
 	}
 	
 	log.Info().Msg("ログ監視を開始します")
