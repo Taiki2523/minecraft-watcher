@@ -67,8 +67,10 @@ func main() {
 		playerCheckInterval = d
 	}
 
-	go interfaces.StartPlayerCheck(notifier, playerService, playerCheckInterval, stopCh)
-
+	if playerCheckInterval > 0 {
+		go interfaces.StartPlayerCheck(notifier, playerService, playerCheckInterval, stopCh)
+	}
+	
 	log.Info().Msg("ログ監視を開始します")
 	if err := interfaces.WatchFileLoop(logPath, playerService, stopCh); err != nil {
 		log.Error().Err(err).Msg("ログ監視中にエラーが発生しました")
