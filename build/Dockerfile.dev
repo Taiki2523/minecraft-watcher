@@ -1,4 +1,4 @@
-FROM golang:1.23
+FROM golang:1.24
 
 ENV ROOT=/go/src/github.com/taiki2523/minecraft-watcher
 WORKDIR ${ROOT}
