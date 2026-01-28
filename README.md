@@ -149,3 +149,38 @@ taiki2523
 - ご質問・要望はIssueまたはPRでどうぞ
 
 ---
+---
+
+# ChatApp (Mattermost-like sample)
+
+Go + TypeScriptで構築したシンプルなチャットアプリです。Google SSOとMariaDBを使った最小構成の実装例として追加しています。
+
+## 構成
+
+- **Backend**: Go (`cmd/chat-server`)
+- **Frontend**: TypeScript + React (`web`)
+- **Database**: MariaDB (`migrations/001_init.sql`)
+
+## セットアップ概要
+
+1. Google OAuthのクライアントID/シークレットを作成
+2. MariaDBに `chatapp` データベースを作成し、`migrations/001_init.sql` を適用
+3. 環境変数を設定してサーバーを起動
+
+```sh
+export GOOGLE_CLIENT_ID="..."
+export GOOGLE_CLIENT_SECRET="..."
+export GOOGLE_REDIRECT_URL="http://localhost:8080/auth/google/callback"
+export DB_DSN="root:password@tcp(127.0.0.1:3306)/chatapp?parseTime=true"
+export SESSION_KEY="change-me"
+
+go run ./cmd/chat-server
+```
+
+開発時は `web` 配下で `npm install` → `npm run dev` でフロントエンドを起動できます。
+
+MariaDBは `docker-compose.chatapp.yml` で起動できます。
+
+```sh
+docker compose -f docker-compose.chatapp.yml up -d
+```
